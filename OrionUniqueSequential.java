@@ -1,7 +1,7 @@
 /**
  * Author: Ryan Shelver
  *
- * Version: 2-21-2021 - (1.0)
+ * Version: 2-22-2021 - (1.0.1)
  * Description: Encryption designed to be able to beat Grover's algorithm, in it's current state it won't be able to but it will be updated regularly.
  *
  * GitHub: https://github.com/rshelver/Orion
@@ -118,8 +118,21 @@ public class OrionUniqueSequential {
 
     public static String decrypt(String dArray, String pText) {
         String finalD = "";
-        int skip = Integer.parseInt(dArray.substring(dArray.length()-1));
-//        System.out.println(skip);
+
+        boolean dashEntry = false;
+        String skipString = "";
+
+        for (int g = 0; g < dArray.length(); g++) {
+            if (dArray.charAt(g) == '-') {
+                dashEntry = true;
+            }
+            else if (dashEntry) {
+                skipString += dArray.charAt(g);
+            }
+        }
+
+        int skip = Integer.parseInt(skipString);
+        System.out.println("TEST: " + skip);
         int splitCode = ((dArray.length()-1)/skip);
 
         String[] slaveCodes = new String[splitCode];
@@ -177,7 +190,7 @@ public class OrionUniqueSequential {
 
     public static void main(String[] args) {
 
-        String versionNumber = "1.0";
+        String versionNumber = "1.0.1";
 
 
         Scanner in = new Scanner(System.in);
@@ -207,7 +220,7 @@ public class OrionUniqueSequential {
 
             password[] ePass = encryptPass(passwordIn);
 
-            String[] alpha = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " ", "|"};
+            String[] alpha = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " ", "|", ",", "."};
 
             getBoolean(alpha, input);
 
@@ -252,7 +265,7 @@ public class OrionUniqueSequential {
             catch (Exception e) {
                 System.out.println("Unable to encrypt due to: " + e);
             }
-            System.out.print(finalNumber);
+            System.out.print("-" + finalNumber);
             System.out.println("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 
         }
