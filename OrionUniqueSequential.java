@@ -1,3 +1,15 @@
+/**
+ * Author: Ryan Shelver
+ *
+ * Version: 2-21-2021 - (1.0)
+ * Description: Encryption designed to be able to beat Grover's algorithm, in it's current state it won't be able to but it will be updated regularly.
+ *
+ * GitHub: https://github.com/rshelver/Orion
+ *
+ */
+
+
+
 import java.util.Scanner;
 
 public class OrionUniqueSequential {
@@ -77,6 +89,7 @@ public class OrionUniqueSequential {
             if (passN > iPass.length) {
                 passN = 0;
                 --i;
+//                System.out.println("PassN: " + passN);
             }
             else if (lArray[i].getCheck()) {
 //                System.out.println("FINAL: " + lArray[i].getLetter() + " : " + lArray[i].getCheck() + " : " + lArray[i].getCode());
@@ -103,9 +116,68 @@ public class OrionUniqueSequential {
         return finalE;
     }
 
+    public static String decrypt(String dArray, String pText) {
+        String finalD = "";
+        int skip = Integer.parseInt(dArray.substring(dArray.length()-1));
+//        System.out.println(skip);
+        int splitCode = ((dArray.length()-1)/skip);
+
+        String[] slaveCodes = new String[splitCode];
+
+        int arrayPos = 0;
+
+        for (int i = 0; i < slaveCodes.length; i++) {
+            int loop = 0;
+            while(loop < skip) {;
+                slaveCodes[i] += dArray.substring(arrayPos, arrayPos + 1);
+                loop++;
+                arrayPos++;
+            }
+        }
+
+
+        // Used to remove any null values
+        for (int x = 0; x < slaveCodes.length; x++) {
+            slaveCodes[x] = slaveCodes[x].replace("null", "");
+//            System.out.print(slaveCodes[x] + ", "); // for testing
+        }
+
+
+//        for (int t = 0; t < slaveCodes.length; t++) {
+//
+//        }
+
+
+        password[] iDPass = encryptPass(pText); // Injection decryption pass - used for division of slaveCodes to get ASCII value.
+
+        int[] decryptAscii = new int[slaveCodes.length];
+
+        int passCount = 0; // Used to keep track of the pass length
+
+
+        for (int j = 0; j < slaveCodes.length; j++) {
+            if (passCount > iDPass.length) {
+                passCount = 0;
+                --j;
+            }
+            else{
+            decryptAscii[j] = Integer.parseInt(slaveCodes[j]) / iDPass[passCount].getCode();
+//            System.out.println(decryptAscii[j]);
+            }
+        }
+
+
+        for (int l = 0; l < decryptAscii.length; l++) {
+            finalD += Character.toString((char) decryptAscii[l]);
+        }
+
+
+        return finalD;
+    }
+
     public static void main(String[] args) {
 
-        String versionNumber = "1.1";
+        String versionNumber = "1.0";
 
 
         Scanner in = new Scanner(System.in);
@@ -130,16 +202,12 @@ public class OrionUniqueSequential {
         if (mainChoice.equalsIgnoreCase("1")) {
             System.out.print("\nPlease Enter the text you wish to encrypt: ");
             String input = in.next() + in.nextLine();
-            System.out.print("\nPlease Enter the password to encrypt with: ");
+            System.out.print("Please Enter the password to encrypt with: ");
             String passwordIn = in.next() + in.nextLine();
-
-
 
             password[] ePass = encryptPass(passwordIn);
 
-
             String[] alpha = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " ", "|"};
-
 
             getBoolean(alpha, input);
 
@@ -149,21 +217,56 @@ public class OrionUniqueSequential {
 
             genCode(permGen);
 
-
 //        Outputs Entire alphabet and Boolean
 //            for (int i = 0; i < permGen.length; i++) {
 //                System.out.println(permGen[i].getLetter() + " : " + permGen[i].getCode() + " : " +  permGen[i].getCheck());
 //            }
 
-//            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
             permGen = cipherSetCode(permGen, ePass);
 
             double[] encryptedText = encrypt(permGen, input);
 
+            int[] finalEncrypted = new int[encryptedText.length];
+
+            String testStore = ""; // Used for figuring out how long the codes are
+
+            int finalNumber = 0; // appends to end of the output (helps with decryption)
+
+
+
             System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
             for (int x = 0; x < encryptedText.length; x++) {
-                System.out.print(encryptedText[x] + ", ");
+                finalEncrypted[x] = (int)encryptedText[x];
+
+                testStore = testStore + finalEncrypted[x];
+
+                System.out.print(finalEncrypted[x]);
             }
+
+            int test2 = input.length();
+            try {
+                finalNumber = testStore.length() / input.length();
+//                System.out.println(finalNumber);
+            }
+            catch (Exception e) {
+                System.out.println("Unable to encrypt due to: " + e);
+            }
+            System.out.print(finalNumber);
+            System.out.println("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
+        }
+        if (mainChoice.equalsIgnoreCase("2")) {
+            System.out.print("\nPlease Enter encrypted text: ");
+            String eText = in.next() + in.nextLine();
+            System.out.print("Please Enter password: ");
+            String dPass = in.next() + in.nextLine();
+            String finalDecrypt = decrypt(eText, dPass);
+
+            System.out.println("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+            System.out.println("Decrypted text: " + finalDecrypt);
+            System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+
         }
     }
 }
