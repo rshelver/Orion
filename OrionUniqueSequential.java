@@ -204,7 +204,7 @@ public class OrionUniqueSequential {
                 "\n                                                        |___/|_|                      ");
 
         System.out.println("Version " + versionNumber);
-        System.out.println("Developed by Mutiny27");
+        System.out.println("Developed by Rshelver");
         System.out.println("https://github.com/rshelver\n");
 
 
